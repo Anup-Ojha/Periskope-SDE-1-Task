@@ -1,14 +1,16 @@
 // app/dashboard/page.tsx
-import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/app/lib/supabaseClient';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export default async function DashboardPage() {
-  // ✅ CORRECT way to use createServerComponentClient
-  const supabase = createServerComponentClient<Database>({
-    cookies: () => Promise.resolve(cookies()),
-  });
+import Sidebar from '@/app/dashboard/components/Sidebar';
+import TopBar from '@/app/dashboard/components/TopBar';
+import RightSidebar from './components/RightSideBar';
+import ChatPage from './components/ChatPage';
+
+export default async function Dashboard() {
+  // Await the creation of the Supabase client, passing the awaited cookies.
+  const supabase = createServerComponentClient({ cookies });
 
   const {
     data: { session },
@@ -19,8 +21,13 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div>
-      <h1>Welcome to the Dashboard!</h1>
+    <div className="flex h-screen w-full">
+      <Sidebar />
+      <div className="flex flex-col flex-1 bg-gray-100">
+        <TopBar />
+        <ChatPage/>
+      </div>
+      <RightSidebar />
     </div>
   );
 }

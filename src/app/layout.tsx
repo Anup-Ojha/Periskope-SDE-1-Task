@@ -1,17 +1,29 @@
-import type { Metadata } from 'next';
+// app/layout.tsx
 import './globals.css';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Periskope',
-  description: 'Chat Application - Secure, Fast & Friendly',
+  title: 'Your App',
+  description: 'Chat app',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createServerComponentClient({ cookies });
+
+  // Get session from cookies
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  // Optional: redirect if no session (for protected routes)
+  // if (!session) redirect('/login');
+
   return (
     <html lang="en">
-      <body className="antialiased bg-gray-50 text-gray-900">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -3,7 +3,12 @@
 import { supabase } from '@/app/lib/supabaseClient';
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { COLORS } from '@/app/lib/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { redirect, useRouter, useSearchParams } from 'next/navigation';
+
+
+function navigatorToDashboard(){
+    redirect('/dashboard');
+  }
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -28,6 +33,8 @@ export default function LoginPage() {
     setPassword(e.target.value);
   };
 
+  
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setMessage('');
@@ -45,7 +52,7 @@ export default function LoginPage() {
         setPassword(''); // Optional: Clear password field on failure
       } else {
         setMessage('Login successful! Redirecting...');
-        router.replace('/dashboard');
+        const myTimeout = setTimeout(navigatorToDashboard, 5);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during login.');

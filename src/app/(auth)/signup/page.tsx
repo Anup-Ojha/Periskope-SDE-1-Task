@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 export default function SignupPage() {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
+  const [Phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [signupCompleted, setSignupCompleted] = useState(false);
@@ -18,25 +19,41 @@ export default function SignupPage() {
     setLoading(true);
     setMessage('');
 
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: Email,
       password: Password,
       options: {
-        emailRedirectTo: 'https://example.com/welcome',
+        emailRedirectTo: `${window.location.origin}/welcome`,
       },
     });
 
-    if (error) {
-      console.error('Signup error:', error.message);
-      setMessage('Signup failed: ' + error.message);
-    } else {
-      setEmail('');
-      setPassword('');
-      setSignupCompleted(true);
-      setMessage('✅ Check your email to confirm and log in.');
+    if (authError) {
+      console.error('Signup error:', authError.message);
+      setMessage('Signup failed: ' + authError.message);
+    } else if (authData?.user?.id) {
+      const { error: profileError } = await supabase
+        .from('user-profile')
+        .insert({ id: authData.user.id, email: Email, name: '', phone: Phone, description: '' });
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        setMessage('Signup successful, but failed to create profile.');
+      } else {
+        setEmail('');
+        setPassword('');
+        setPhone('');
+        setSignupCompleted(true);
+        setMessage('✅ Check your email to confirm and log in.');
+      }
     }
 
     setLoading(false);
+  };
+
+  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // Allow only digits and limit to 10 characters
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhone(value);
   };
 
   return (
@@ -98,6 +115,22 @@ export default function SignupPage() {
             required
             maxLength={30}
             disabled={signupCompleted}
+            style={{
+              padding: '14px',
+              borderRadius: '8px',
+              border: `1px solid ${COLORS.primaryGreen}`,
+              fontSize: '17px',
+              color: COLORS.darkGray,
+              width: '100%'
+            }}
+          />
+
+          <input
+            type="tel"
+            value={Phone}
+            onChange={handlePhoneChange}
+            placeholder="Phone (10 digits)"
+            maxLength={10}
             style={{
               padding: '14px',
               borderRadius: '8px',
