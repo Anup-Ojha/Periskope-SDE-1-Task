@@ -2,18 +2,10 @@
 
 import { useState, useEffect, ChangeEvent } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { COLORS } from '@/app/lib/utils';
+import { COLORS, Profile } from '@/app/lib/utils';
 import defaultProfileImage from '@/../public/default-image.jpeg';
 import { redirect } from 'next/navigation';
 
-interface Profile {
-  id: string;
-  name: string | null;
-  phone: string | null;
-  description: string | null;
-  profile_pic_data: string | null;
-  profile_pic_type: string | null;
-}
 
 export default function ProfilePage() {
   const supabase = createClientComponentClient();
@@ -29,9 +21,6 @@ export default function ProfilePage() {
   
   useEffect(() => {
     const fetchProfileData = async () => {
-      setLoading(true);
-      setMessage('');
-
       const {
         data: { user },
         error: userError,
@@ -41,9 +30,7 @@ export default function ProfilePage() {
         redirect('/login')
         return;
       }
-
       const userId = user.id;
-
       const { data, error } = await supabase
         .from('user-profile')
         .select('name, phone, description, profile_pic_data, profile_pic_type')
@@ -65,12 +52,13 @@ export default function ProfilePage() {
           setPreviewUrl(defaultProfileImage.src);
         }
       }
-
       setLoading(false);
     };
 
     fetchProfileData();
   }, [supabase]);
+
+
 
   const handleUpdateProfile = async () => {
     setMessage('');
@@ -134,6 +122,7 @@ export default function ProfilePage() {
       reader.readAsDataURL(file);
     });
   };
+
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.darkGreenBackground, padding: '40px' }}>

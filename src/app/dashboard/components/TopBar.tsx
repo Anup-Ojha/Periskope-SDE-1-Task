@@ -1,55 +1,57 @@
 'use client';
 
-import { FiRefreshCw, FiHelpCircle, FiMessageSquare } from 'react-icons/fi';
-import { FaUserCircle } from 'react-icons/fa';
-import { MdLogout } from 'react-icons/md';
+import React from 'react';
+import { FiHelpCircle, FiList } from 'react-icons/fi';
 import { AiFillMessage } from 'react-icons/ai';
+import { LuRefreshCcwDot } from 'react-icons/lu';
+import { HiChevronUpDown } from 'react-icons/hi2';
+import { GoDesktopDownload } from 'react-icons/go';
+import { IoMdNotificationsOff } from 'react-icons/io';
+import { BsStars } from 'react-icons/bs';
+import { VscCircleFilled } from 'react-icons/vsc';
 
-export default function TopBar() {
+const ButtonBar = () => {
   return (
-    <div className="p-3 flex justify-between items-center bg-white border-b shadow-sm">
-      {/* Left: Title with Chat Icon */}
-      <div className="flex items-center gap-2 text-xl font-semibold text-gray-700">
-        <AiFillMessage className="text-grey-400" size={22} />
-        <span>chats</span>
+    <div className="bg-white shadow-md rounded-md p-3 flex items-center">
+      {/* Chats section on the left */}
+      <div className="flex items-center space-x-2 px-2">
+        <AiFillMessage className="text-gray-600" size={20} />
+        <span className="text-sm text-black font-semibold">Chats</span>
       </div>
 
-      {/* Right: Icon buttons */}
-      <div className="flex items-center gap-3">
-        {/* Refresh Icon */}
-        <button
-          title="Refresh"
-          className="p-2 rounded-full hover:bg-gray-100 transition duration-200"
-        >
-          <FiRefreshCw size={20} className="text-gray-600" />
-        </button>
+      {/* Spacer to push buttons to the right */}
+      <div className="flex-grow" />
 
-        {/* Help Icon */}
-        <button
-          title="Help"
-          className="p-2 rounded-full hover:bg-gray-100 transition duration-200"
-        >
-          <FiHelpCircle size={20} className="text-gray-600" />
+      {/* Buttons on the right */}
+      <div className="flex items-center space-x-2">
+        <button className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <LuRefreshCcwDot  className="text-gray-600" size={16} />
+          <span className="text-sm text-black">Refresh</span>
         </button>
-
-        {/* Profile Button */}
-        <button
-          title="Profile"
-          className="flex items-center gap-1 bg-green-100 text-green-700 font-medium px-4 py-2 rounded-full hover:bg-green-200 transition duration-200"
-        >
-          <FaUserCircle size={18} />
-          <span className="text-sm"><a href="/profile">Profile</a></span>
+        <button className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <FiHelpCircle className="text-gray-600" size={16} />
+          <span className="text-sm text-black">Help</span>
         </button>
-
-        {/* Logout Button */}
-        <button
-          title="Logout"
-          className="flex items-center gap-1 bg-red-100 text-red-600 font-medium px-4 py-2 rounded-full hover:bg-red-200 transition duration-200"
-        >
-          <MdLogout size={18} />
-          <span className="text-sm" ><a href="/logout">Logout</a></span>
+        <div className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-1 hover:shadow-md">
+          <VscCircleFilled className="text-yellow-400" size={20} />
+          <span className="text-sm text-black">5 / 6 phones</span>
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-gray-500">
+            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <button className="bg-white shadow-sm rounded-md px-2 py-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <GoDesktopDownload className="text-gray-600" size={20} />
+        </button>
+        <button className="bg-white shadow-sm rounded-md px-2 py-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <IoMdNotificationsOff className="text-gray-600" size={20} />
+        </button>
+        <button className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <BsStars className="text-yellow-500" size={16} />
+          <FiList className="text-gray-600" size={16} />
         </button>
       </div>
     </div>
   );
-}
+};
+
+export default ButtonBar;

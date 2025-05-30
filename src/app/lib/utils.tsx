@@ -24,5 +24,32 @@ export interface Contact {
   phone: string;
   contactName: string;
   contactNumber: string;
-  profilePic?:string;
+  profile_pic_data?: string;
+  profile_pic_type?:string;
+  id: number;
+  userId: string;
 }
+
+export interface Profile {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  description: string | null;
+  profile_pic_data: string | null;
+  profile_pic_type: string | null;
+}
+
+
+// types/realtime.ts
+
+export interface TypingStatusPayload {
+  userId: string | null;
+  recipientId: string | null;
+  status: 'typing' | 'stopped_typing';
+}
+
+
+
+
+
+// Add any other Realtime-related types here as needed

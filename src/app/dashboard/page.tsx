@@ -25,9 +25,9 @@ export default async function Dashboard() {
       <Sidebar />
       <div className="flex flex-col flex-1 bg-gray-100">
         <TopBar />
-        <ChatPage/>
+        <ChatPage></ChatPage>
       </div>
-      <RightSidebar />
+      <RightSidebar/>
     </div>
   );
 }

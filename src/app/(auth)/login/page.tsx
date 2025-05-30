@@ -21,7 +21,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Prefetch dashboard to speed up redirect
     router.prefetch('/dashboard');
   }, [router]);
 
@@ -49,10 +48,10 @@ export default function LoginPage() {
 
       if (supabaseError) {
         setError(`Login failed: ${supabaseError.message}`);
-        setPassword(''); // Optional: Clear password field on failure
+        setPassword(''); 
       } else {
         setMessage('Login successful! Redirecting...');
-        const myTimeout = setTimeout(navigatorToDashboard, 5);
+        const myTimeout = setTimeout(navigatorToDashboard, 2);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during login.');
