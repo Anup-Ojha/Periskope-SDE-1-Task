@@ -4,9 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { MdFilterList } from 'react-icons/md';
 import { CiSearch } from 'react-icons/ci';
 import Image from 'next/image';
-import { supabase } from '@/app/lib/supabaseClient';
 import { HiFolderDownload } from 'react-icons/hi';
-import { fetchContacts, subscribeToContacts, unsubscribeFromContacts } from './api.chat';
+import { fetchContacts, unsubscribeFromContacts } from './api.chat';
 
 export interface Contact {
     phone: string;
@@ -32,24 +31,18 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
         const getContacts = async () => {
             const fetchedContacts = await fetchContacts();
             setContacts(fetchedContacts);
-            console.log("Fetched Contacts in ContactList:", fetchedContacts);
         };
         getContacts();
     }, [userId]);
 
     useEffect(() => {
-        contactsChannel.current = subscribeToContacts(setContacts);
         return () => {
             if (contactsChannel.current) {
                 unsubscribeFromContacts(contactsChannel.current);
                 contactsChannel.current = null;
             }
         };
-    }, [setContacts]);
-
-    useEffect(() => {
-        console.log("selectedContact prop in ContactList:", selectedContact);
-    }, [selectedContact]);
+    }, []);
 
     const filteredContacts = contacts.filter(contact =>
         (contact.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,72 +50,64 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
     );
 
     return (
-        <div style={{ width: '30%', minWidth: '300px', backgroundColor: '#fff', overflowY: 'auto', borderRight: '1px solid #ddd', borderTop: '2px solid #ddd' }}>
-            {/* ... Header ... */}
-            <div
-                className='flex items-center justify-between flex-wrap'
-                style={{ padding: '10px', backgroundColor: '#FAFAFA', fontWeight: 'bold', borderBottom: '1px solid #eee' }}
-            >
-                {/* ... Header Content ... */}
+        <div className="w-[30%] min-w-[300px] bg-white overflow-y-auto border-r border-t border-gray-300">
+            {/* Header */}
+            <div className="flex items-center justify-between flex-wrap p-3 bg-gray-50 font-semibold border-b border-gray-200">
                 <div className="flex items-center mb-2 md:mb-0">
-                    <HiFolderDownload size={25} style={{ color: 'green', marginRight: '8px' }} />
-                    <p style={{ color: 'green', fontSize: '1rem', marginRight: '10px' }}>Custom filter</p>
-                    <button
-                        className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-3 py-2 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        style={{ marginLeft: '0' }}
-                    >
-                        <span className="">Save</span>
+                    <HiFolderDownload size={25} className="text-green-600 mr-2" />
+                    <p className="text-green-600 text-base mr-3">Custom filter</p>
+                    <button className="bg-white shadow-sm rounded-md flex items-center px-3 py-2 text-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span>Save</span>
                     </button>
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    <div className="bg-white shadow-sm rounded-md flex items-center relative">
-                        <CiSearch size={16} style={{ color: '#888', position: 'absolute', left: '8px' }} />
+                    <div className="relative bg-white shadow-sm rounded-md flex items-center">
+                        <CiSearch size={16} className="text-gray-500 absolute left-2" />
                         <input
                             type="text"
                             placeholder="Search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{
-                                padding: '6px 10px 6px 30px',
-                                borderRadius: '6px',
-                                border: '1px solid #ccc',
-                                fontSize: '0.900rem',
-                                width: '100px',
-                                outline: 'none',
-                                backgroundColor: 'inherit',
-                            }}
-                            className="focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="pl-7 pr-3 py-1.5 rounded-md border border-gray-300 text-sm w-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-inherit"
                         />
                     </div>
-                    <button className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-2 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <button className="bg-white shadow-sm rounded-md flex items-center space-x-1 px-2 py-2 text-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <MdFilterList className="text-gray-600" size={16} />
-                        <span className="">Filtered</span>
+                        <span>Filtered</span>
                     </button>
                 </div>
             </div>
 
             {/* Contact List */}
-            {filteredContacts.map((contact) => (
-                <div
-                    key={contact.id}
-                    onClick={() => onSelect(contact)}
-                    className={`flex items-center p-3 cursor-pointer border-bottom transition-colors duration-200 ease-in-out ${selectedContact?.phone === contact.phone ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
-                    style={{ borderBottom: '1px solid #f0f0f0' }}
-                >
-                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', overflow: 'hidden', marginRight: '15px' }}>
-                        {contact.profilePic ? (
-                            <Image src={contact.profilePic} alt="Profile" width={50} height={50} style={{ objectFit: 'cover' }} />
-                        ) : (
-                            <Image priority src='/default-image.jpeg' alt="Default Profile" width={50} height={50} style={{ objectFit: 'cover' }} />
-                        )}
+            {filteredContacts.map((contact) => {
+                const isSelected = selectedContact?.id === contact.id;
+                return (
+                    <div
+                        key={contact.id}
+                        onClick={() => onSelect(contact)}
+                        className={`flex items-center p-3 cursor-pointer border-b border-gray-100 transition-colors duration-200 ease-in-out
+                            ${isSelected ? 'bg-blue-100 border-l-4 ' : 'hover:bg-gray-50'}
+                        `}
+                    >
+                        <div className="w-[50px] h-[50px] rounded-full overflow-hidden mr-4 flex-shrink-0">
+                            <Image
+                                src={contact.profilePic || '/default-image.jpeg'}
+                                alt="Profile"
+                                width={50}
+                                height={50}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
+                        <div className="flex-grow flex flex-col">
+                            <div className="font-semibold text-sm">{contact.contactName || contact.contactNumber}</div>
+                            {contact.contactName && (
+                                <div className="text-xs text-gray-600">{contact.contactNumber}</div>
+                            )}
+                        </div>
                     </div>
-                    <div className="flex-grow flex flex-col">
-                        <div style={{ fontWeight: 'bold' }}>{contact.contactName || contact.contactNumber}</div>
-                        {contact.contactName && <div style={{ fontSize: '12px', color: '#555' }}>{contact.contactNumber}</div>}
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }

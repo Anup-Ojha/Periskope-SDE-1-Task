@@ -1,82 +1,22 @@
 'use client';
 
-import { Contact, Message } from '@/app/lib/utils'; // Assuming this now contains the updated Contact interface
-import { useEffect, useRef, useState } from 'react';
-import { fetchMessages, removeChatSubscription, sendMessage, subscribeToNewMessages } from './api.chat';
-import { supabase } from '@/app/lib/supabaseClient';
-import Image from 'next/image';
+import React, {  useCallback, useEffect, useRef, useState } from 'react';
+import { fetchMessages, removeChatSubscription, sendMessage, subscribeToNewMessages } from './api.chat'; // Adjust path as needed
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { FiPaperclip, FiSmile, FiClock } from 'react-icons/fi';
 import { IoSend } from 'react-icons/io5';
 import { RiExpandUpDownLine, RiFileList2Fill } from 'react-icons/ri';
 import { GiStarsStack } from 'react-icons/gi';
 import { FaMicrophone } from 'react-icons/fa';
 import { PiClockClockwiseFill } from 'react-icons/pi';
+import { Contact, Message } from '@/app/lib/utils';
 
 interface ChatBoxProps {
   selectedContact: Contact | null;
+  refreshKey: number;
 }
 
-async function fetchCurrentUserPhone(): Promise<string | null> {
-  try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError) {
-      console.error("Error getting user:", userError);
-      return null;
-    }
-
-    const userId = user?.id;
-
-    if (!userId) {
-      console.warn("User not authenticated.");
-      return null;
-    }
-
-    const { data, error } = await supabase
-      .from('user-profile')
-      .select('phone')
-      .eq('id', userId)
-      .single();
-    console.log(data)
-
-    if (error) {
-      console.error("Error fetching user profile:", error);
-      return null;
-    }
-
-    const currentUserPhone = data?.phone;
-    return currentUserPhone;
-
-  } catch (error) {
-    console.error("An unexpected error occurred:", error);
-    return null;
-  }
-}
-
-// Updated function to fetch profile picture data and type
-async function fetchContactProfilePictureData(contactNumber: string): Promise<{ data: string | null; type: string | null }> {
-  try {
-    const { data, error } = await supabase
-      .from('user-profile') // Assuming 'profiles' is your table name for user profiles
-      .select('profile_pic_data, profile_pic_type')
-      .eq('phone', contactNumber)
-      .single();
-
-    if (error) {
-      console.error('Error fetching contact profile picture data:', error);
-      return { data: null, type: null };
-    }
-
-    return { data: data?.profile_pic_data || null, type: data?.profile_pic_type || null };
-  } catch (error) {
-    console.error('An unexpected error occurred while fetching contact profile picture data:', error);
-    return { data: null, type: null };
-  }
-}
-
-export default function ChatBox({ selectedContact }: ChatBoxProps) {
+export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -85,7 +25,54 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const messagesAreaRef = useRef<HTMLDivElement>(null);
-  const [contactProfilePicSrc, setContactProfilePicSrc] = useState<string | null>(null); // State for the image source URL
+  const [contactProfilePicSrc, setContactProfilePicSrc] = useState<string | null>(null);
+
+  const supabase = createClientComponentClient();
+
+  const fetchCurrentUserPhone = useCallback(async (): Promise<string | null> => {
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError) {
+        console.error("Error getting user:", userError);
+        return null;
+      }
+      const userId = user?.id;
+      if (!userId) {
+        console.warn("User not authenticated.");
+        return null;
+      }
+      const { data, error } = await supabase
+        .from('user-profile')
+        .select('phone')
+        .eq('id', userId)
+        .single();
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        return null;
+      }
+      return data?.phone || null;
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+      return null;
+    }
+  }, [supabase]);
+
+ 
+
+  const loadMessages = useCallback(async (contact: Contact | null) => {
+    if (!contact) {
+      setMessages([]);
+      return;
+    }
+    const fetchedMessages = await fetchMessages(contact);
+    setMessages(fetchedMessages);
+    if (messagesAreaRef.current) {
+      messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+    }
+  }, [fetchMessages]);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -93,51 +80,27 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
       setCurrentUserPhone(phone);
     };
     getCurrentUser();
-  }, []);
+  }, [fetchCurrentUserPhone]);
 
+  
+
+  // Re-fetch messages when refreshKey changes
   useEffect(() => {
-    const loadMessages = async () => {
-      const fetchedMessages = await fetchMessages(selectedContact);
-      setMessages(fetchedMessages);
-      if (messagesAreaRef.current) {
-        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
-      }
-    };
-
-    const loadContactProfileData = async () => {
-      if (selectedContact) {
-        const { data, type } = await fetchContactProfilePictureData(selectedContact.contactNumber);
-        if (data && type) {
-          setContactProfilePicSrc(`data:${type};base64,${data}`);
-        } else {
-          setContactProfilePicSrc(null); // No profile pic data found
-        }
-      } else {
-        setContactProfilePicSrc(null);
-      }
-    };
-
     if (selectedContact) {
-      loadMessages();
-      loadContactProfileData(); // Call the new function to load profile data
-      chatSubscription.current = subscribeToNewMessages(selectedContact, setMessages);
+      console.log('Refreshing chat due to key change:', refreshKey);
+      loadMessages(selectedContact);
     }
-
-    return () => {
-      removeChatSubscription(chatSubscription.current);
-    };
-  }, [selectedContact]);
+  }, [refreshKey, selectedContact, loadMessages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async () => {
     if (selectedContact && newMessage.trim()) {
-      // Optimistic UI update: add the message to state immediately
       if (currentUserPhone) {
         const tempMessage: Message = {
-          id: Date.now().toString(), // Temporary ID for optimistic update
+          id: Date.now().toString(),
           sender: currentUserPhone,
           recipient: selectedContact.contactNumber,
           content: newMessage.trim(),
@@ -145,27 +108,21 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
         };
         setMessages((prevMessages) => [...prevMessages, tempMessage]);
       }
-
-      setNewMessage(''); // Clear input immediately
-
+      setNewMessage('');
       try {
         await sendMessage(selectedContact, newMessage.trim());
-        // The real-time subscription will eventually update the message with the actual ID from DB
       } catch (error) {
         console.error("Error sending message:", error);
-        // Revert optimistic update if sending fails
         if (currentUserPhone) {
-          setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== Date.now().toString())); // Filter out the temp message
+          setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== Date.now().toString()));
         }
-        // Optionally, show an error message to the user
       }
     }
-  };
+  }, [selectedContact, newMessage, currentUserPhone, sendMessage]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(event.target.value);
-  };
-
+  }, []);
 
   const makeClickableStyle = {
     cursor: 'pointer',
@@ -174,16 +131,28 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
     transition: 'background-color 0.2s ease-in-out',
   };
 
+const autoRefreshMessages = useCallback(() => {
+  if (selectedContact) {
+loadMessages(selectedContact);
+}
+}, [selectedContact, loadMessages]);
+
+useEffect(() => {
+  const intervalId = setInterval(autoRefreshMessages, Math.random() * (3000 - 2000) + 2000); // Refresh every 2 to 3 seconds
+
+  return () => clearInterval(intervalId); // Cleanup on unmount
+}, [autoRefreshMessages]);
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '720px' }}>
-    {/* Contact Info Header */}
-      <div style={{ padding: '10px 20px', height: '58px', backgroundColor: '#f0f0f0', color: '#000', fontWeight: 'bold', display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', borderTop: '2px solid #ddd' }}>
-        {contactProfilePicSrc ? ( // Use the state variable for the generated image source
+
+      {/* Contact Info Header */}
+      <div style={{ padding: '10px 20px', height: '58px', backgroundColor: '#f0f0f0', color: '#000', fontWeight: 'bold', display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', borderTop: '1px solid #ddd' }}>
+        {contactProfilePicSrc ? (
           <div style={{ width: '30px', height: '30px', borderRadius: '50%', overflow: 'hidden', marginRight: '10px' }}>
             <img src={contactProfilePicSrc} alt="Contact Profile" width={30} height={30} style={{ objectFit: 'cover' }} />
           </div>
         ) : (
-          // Fallback if no profile pic data is found or selectedContact is null
           <div style={{ width: '30px', height: '30px', borderRadius: '50%', overflow: 'hidden', marginRight: '10px', backgroundColor: '#ccc', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {selectedContact?.contactName?.charAt(0).toUpperCase() || selectedContact?.contactNumber?.charAt(0).toUpperCase()}
           </div>
@@ -196,7 +165,7 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
       <div
         ref={messagesAreaRef}
         style={{
-          height: 'calc(100% - 58px - 118px)',
+          height: 'calc(100% - 58px - 56px)', // Adjusted to account for ButtonBar implicitly if present
           padding: '20px',
           backgroundColor: '#ece5dd',
           overflowY: 'auto',
@@ -245,6 +214,7 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
         <div style={{ padding: '10px 20px', borderTop: '1px solid #ddd', backgroundColor: 'white', display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {showEmojiPicker && (
             <div ref={emojiPickerRef} style={{ position: 'absolute', bottom: '60px', left: '20px', zIndex: 10 }}>
+              {/* Emoji Picker component here */}
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -288,25 +258,25 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => console.log('Attachment clicked')} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <FiPaperclip size={20} color="#000" />
               </div>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => setShowEmojiPicker(!showEmojiPicker)} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <FiSmile size={20} color="#000" />
               </div>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => console.log('Clock clicked')} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <FiClock size={20} color="#000" />
               </div>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => console.log('Undo clicked')} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <PiClockClockwiseFill size={23} color="#000" />
               </div>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => console.log('Hashtag clicked')} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <GiStarsStack size={20} color="#000" style={{ rotate: '90deg' }} />
               </div>
-              <div  style={{ ...makeClickableStyle, marginRight: '23px' }}>
+              <div onClick={() => console.log('FileList clicked')} style={{ ...makeClickableStyle, marginRight: '23px' }}>
                 <RiFileList2Fill size={20} color="#000" />
               </div>
-              <div  style={makeClickableStyle}>
+              <div onClick={() => console.log('Mic clicked')} style={makeClickableStyle}>
                 <FaMicrophone size={20} color="#000" />
               </div>
             </div>
@@ -325,6 +295,7 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
                   cursor: 'pointer',
                   transition: 'background-color 0.2s ease-in-out',
                 }}
+                onClick={() => console.log('Periscope clicked')}
               >
                 <img
                   src="/publicData/icon.png"

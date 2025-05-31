@@ -4,11 +4,12 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { COLORS, Profile } from '@/app/lib/utils';
 import defaultProfileImage from '@/../public/default-image.jpeg';
-import { redirect } from 'next/navigation';
-
+import { redirect, useRouter } from 'next/navigation';
+import { IoArrowBack, IoLogOutOutline } from 'react-icons/io5';
 
 export default function ProfilePage() {
   const supabase = createClientComponentClient();
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -18,7 +19,6 @@ export default function ProfilePage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(defaultProfileImage.src);
 
-  
   useEffect(() => {
     const fetchProfileData = async () => {
       const {
@@ -27,7 +27,7 @@ export default function ProfilePage() {
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        redirect('/login')
+        redirect('/login');
         return;
       }
       const userId = user.id;
@@ -57,8 +57,6 @@ export default function ProfilePage() {
 
     fetchProfileData();
   }, [supabase]);
-
-
 
   const handleUpdateProfile = async () => {
     setMessage('');
@@ -123,10 +121,30 @@ export default function ProfilePage() {
     });
   };
 
+  const handleLogout = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+     setMessage('Logout failed.');
+     } else {
+     router.push('/logout');
+    }
+     setLoading(false);
+   };
+
+  const handleGoBack = () => {
+    router.back(); // Attempts to go to the previous page in history
+    // If you always want to go to the dashboard, use:
+    // router.push('/dashboard');
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.darkGreenBackground, padding: '40px' }}>
       <div style={{ maxWidth: '1100px', margin: 'auto', display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+        {/* Back Button */}
+        <div style={{ position: 'absolute', top: '20px', left: '20px', cursor: 'pointer', zIndex: 10 }}>
+          <IoArrowBack size={24} color="#fff" onClick={handleGoBack} />
+        </div>
 
         {/* Left Card */}
         <div style={{
@@ -208,6 +226,28 @@ export default function ProfilePage() {
               {loading ? 'Saving...' : 'Update Profile'}
             </button>
           </div>
+          <button
+  onClick={handleLogout}
+  style={{
+    position: 'absolute',
+    bottom: '20px',
+    right: '20px',
+    backgroundColor: 'red',
+    color: '#fff',
+    padding: '8px 15px',
+    borderRadius: '8px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  }}
+  disabled={loading}
+>
+  <IoLogOutOutline size={20} />
+  Logout
+</button>
         </div>
       </div>
     </div>

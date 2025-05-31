@@ -94,31 +94,31 @@ export const fetchContacts = async (): Promise<Contact[]> => {
 };
 
 // Function to subscribe to real-time updates for contacts
-export const subscribeToContacts = (
-  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>
-) => {
-  return supabase
-    .channel('realtime-contacts')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'contacts' },
-      (payload) => {
-        const currentUserPhone = localStorage.getItem('currentUserPhone'); 
-        if (!currentUserPhone) return;
+// export const subscribeToContacts = (
+//   setContacts: React.Dispatch<React.SetStateAction<Contact[]>>
+// ) => {
+//   return supabase
+//     .channel('realtime-contacts')
+//     .on(
+//       'postgres_changes',
+//       { event: '*', schema: 'public', table: 'contacts' },
+//       (payload) => {
+//         const currentUserPhone = localStorage.getItem('currentUserPhone'); 
+//         if (!currentUserPhone) return;
 
-        const record = payload.new || payload.old;
-        if (record?.phone === currentUserPhone) {
-          // If the change affects a contact owned by the current user, refetch the list
-          fetchContacts().then(updatedContacts => {
-            setContacts(updatedContacts);
-          }).catch(error => {
-            console.error("Error refetching contacts after real-time event:", error);
-          });
-        }
-      }
-    )
-    .subscribe();
-};
+//         const record = payload.new || payload.old;
+//         if (record?.phone === currentUserPhone) {
+//           // If the change affects a contact owned by the current user, refetch the list
+//           fetchContacts().then(updatedContacts => {
+//             setContacts(updatedContacts);
+//           }).catch(error => {
+//             console.error("Error refetching contacts after real-time event:", error);
+//           });
+//         }
+//       }
+//     )
+//     .subscribe();
+// };
 
 export const unsubscribeFromContacts = (channel: any) => {
   if (channel && channel.unsubscribe) {

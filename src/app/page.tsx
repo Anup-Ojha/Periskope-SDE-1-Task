@@ -1,11 +1,38 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { COLORS } from '@/app/lib/utils';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const supabase = createClientComponentClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleLogout = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error during logout:', error);
+        // Optionally display an error message to the user
+      } else {
+        console.log('Logged out successfully');
+        // The router.push('/') here is redundant as this is the home page
+        // You might want to redirect to a different landing page if needed
+      }
+    };
+
+    // Call handleLogout when the component mounts
+    handleLogout();
+
+    // Cleanup function (optional, but good practice)
+    return () => {
+      // Any cleanup logic if needed
+    };
+  }, [supabase, router]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

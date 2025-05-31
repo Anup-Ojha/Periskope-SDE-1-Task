@@ -26,7 +26,6 @@ export default function ChatPage() {
 
     const handleSelectContact = (contact: Contact) => {
         setSelectedContact(contact);
-        console.log("Selected Contact in ChatPage:", contact); // Debugging
     };
 
     return (
@@ -41,7 +40,7 @@ export default function ChatPage() {
             )}
             <AddContactButton onContactAdded={handleContactAdded} />
             <div style={{ flex: 1 }}>
-                <ChatBox selectedContact={selectedContact} />
+                <ChatBox selectedContact={selectedContact} refreshKey={refreshKey} />
             </div>
         </div>
     );
