@@ -6,5 +6,5 @@ export async function GET() {
   const supabase =await createRouteHandlerClient({ cookies });
   await supabase.auth.signOut();
 
-  return NextResponse.redirect('http://localhost:3000');
+  return NextResponse.redirect('/');
 }
