@@ -85,6 +85,7 @@ export default function Sidebar() {
                     alt="Periskope Logo"
                     width={36}
                     height={36}
+                    priority
                 />
             </div>
 

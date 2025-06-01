@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { COLORS } from '@/app/lib/utils';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import ContactCountChart from './ContactCountChart';
 
 export default function HomePage() {
@@ -18,9 +17,7 @@ export default function HomePage() {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Error during logout:', error);
-      } else {
-        console.log('Logged out successfully');
-      }
+      } 
     };
 
     handleLogout();
@@ -181,7 +178,7 @@ export default function HomePage() {
       {/* Navigation Bar */}
       <nav className="nav-bar">
         <Link href="/" className="nav-logo">
-          <Image
+          <img
             src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
             alt="Periskope Logo"
             height={80}
@@ -206,7 +203,7 @@ export default function HomePage() {
           <p className="main-paragraph">
             Connect with your friends and family seamlessly through our chat application.
           </p>
-          <Image
+          <img
             src="/pafe.jpg"
             alt="Chat Illustration"
             className="hero-image"

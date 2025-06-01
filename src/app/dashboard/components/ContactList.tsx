@@ -11,7 +11,6 @@ export interface Contact {
   phone: string;
   contactName: string;
   contactNumber: string;
-  profilePic?: string;
   id: string | number; // ID can now be a string for unsaved
   userId: string;
 }
@@ -92,7 +91,7 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
           >
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden mr-4 flex-shrink-0">
               <Image
-                src={contact.profilePic || '/default-image.jpeg'}
+                src={'/default-image.jpeg'}
                 alt="Profile"
                 width={50}
                 height={50}

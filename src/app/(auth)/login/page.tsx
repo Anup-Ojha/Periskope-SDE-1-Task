@@ -4,7 +4,6 @@ import { supabase } from '@/app/lib/supabaseClient';
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { COLORS } from '@/app/lib/utils';
 import { useRouter } from 'next/navigation'; 
-import Image from 'next/image'; 
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -44,7 +43,7 @@ export default function LoginPage() {
                 setPassword('');
             } else {
                 setMessage('Login successful! Redirecting...');
-                router.push('/dashboard'); 
+                router.push('/profile'); 
             }
         } catch (err) {
             setError((err as Error).message || 'An error occurred during login.');
@@ -65,7 +64,7 @@ export default function LoginPage() {
             borderRadius: '20px'
         }}>
             <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                <Image
+                <img
                     src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
                     width={350} // Specify width
                     height={240} // Specify height (adjust as needed)
@@ -117,6 +116,7 @@ export default function LoginPage() {
                         onChange={handlePasswordChange}
                         placeholder="Password"
                         required
+                        autoComplete='true'
                         style={{
                             padding: '14px',
                             borderRadius: '8px',

@@ -1,6 +1,6 @@
 // api/chat.ts
 import { supabase } from '@/app/lib/supabaseClient';
-import { Contact, Message } from '@/app/lib/utils';
+import { Contact, Message } from '@/app/lib/utils'; // Assuming Contact and Message types are defined in utils.ts
 
 async function fetchCurrentUserPhone(): Promise<string | null> {
   try {
@@ -75,61 +75,27 @@ export const addContact = async (
     return { success: false, error };
   }
 };
-// --- END NEW FUNCTION ---
-
 
 export const fetchContacts = async (): Promise<Contact[]> => {
   try {
     const currentUserPhone = await getCurrentUserPhone();
 
-    // Fetch saved contacts
+    // Fetch only saved contacts for the current user
     const { data: savedContacts, error: contactsError } = await supabase
       .from('contacts')
       .select('*')
-      .eq('phone', currentUserPhone);
+      .eq('phone', currentUserPhone); // Assuming 'phone' column in 'contacts' table stores the owner's phone
 
     if (contactsError) {
       console.error('Error fetching saved contacts:', contactsError);
       return [];
     }
 
-    // Fetch senders of messages to the current user who are not in saved contacts
-    const savedContactNumbers = savedContacts?.map(c => c.contactNumber) || [];
-
-let messagesQuery = supabase
-  .from('messages')
-  .select('sender')
-  .neq('sender', currentUserPhone)
-  .eq('recipient', currentUserPhone);
-
-if (savedContactNumbers.length > 0) {
-  messagesQuery = messagesQuery.not('sender', 'in', savedContactNumbers);
-}// Apply distinct AFTER building the full query
-
-const { data: newMessagedUsers} = await messagesQuery;
-
-    // Create Contact objects for new messaged users
-    const newContactsFromMessages = (newMessagedUsers || []).map(user => ({
-      id: `new-${user.sender}`,
-      userId: 'unknown', // Or some default
-      phone: user.sender,
-      contactName: '',
-      contactNumber: user.sender,
-    }));
-
-    // Combine and remove duplicates (if any) based on contactNumber
-     const allContactsMap = new Map<string, Contact>();
-    (savedContacts || []).forEach(contact => allContactsMap.set(contact.contactNumber, contact));
-    newContactsFromMessages.forEach(contact => {
-      if (!allContactsMap.has(contact.contactNumber)) {
-        allContactsMap.set(contact.contactNumber, contact);
-      }
-    });
-
-    return Array.from(allContactsMap.values());
+    // Return the fetched saved contacts directly
+    return savedContacts || [];
 
   } catch (error) {
-    console.error('Error fetching all contacts:', error);
+    console.error('Error fetching contacts:', error);
     return [];
   }
 };
@@ -142,22 +108,26 @@ export const unsubscribeFromContacts = (channel: any) => {
 };
 
 
-export const fetchMessages = async (selectedContact: Contact | null): Promise<Message[]> => {
-  if (!selectedContact) return [];
-  const currentUserPhone = await getCurrentUserPhone();
-  const { data, error } = await supabase
-    .from('messages')
-    .select('*')
-    .or(
-      `and(sender.eq.${currentUserPhone},recipient.eq.${selectedContact.contactNumber}),and(sender.eq.${selectedContact.contactNumber},recipient.eq.${currentUserPhone})`
-    )
-    .order('timestamp', { ascending: true });
-  if (error) {
-    console.error('Error fetching messages:', error);
+export async function fetchMessages(contact: Contact) {
+  const currentUserPhone = await fetchCurrentUserPhone(); // Get the current user's phone
+
+  if (!currentUserPhone) {
+    console.error("Could not determine current user's phone.");
     return [];
   }
-  return data as Message[];
-};
+
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*') // Or specific columns you need
+    .or(`and(sender.eq.${currentUserPhone},recipient.eq.${contact.contactNumber}),and(sender.eq.${contact.contactNumber},recipient.eq.${currentUserPhone})`)
+    .order('timestamp', { ascending: true });
+
+  if (error) {
+    console.error("Error fetching messages:", error);
+    return [];
+  }
+  return data || [];
+}
 
 export const sendMessage = async (selectedContact: Contact | null, newMessage: string): Promise<void> => {
   if (!newMessage.trim() || !selectedContact) return;
@@ -188,7 +158,7 @@ export const subscribeToNewMessages = async (
       if (
         newMsg &&
         ((newMsg.sender === currentUserPhone && newMsg.recipient === selectedContact.contactNumber) ||
-         (newMsg.sender === selectedContact.contactNumber && newMsg.recipient === currentUserPhone))
+          (newMsg.sender === selectedContact.contactNumber && newMsg.recipient === currentUserPhone))
       ) {
         setMessages((prev: Message[]) => [...prev, newMsg]);
       }
