@@ -1,6 +1,5 @@
 // components/AddContactButton.tsx
 import React, { useState } from 'react';
-import { FiPlus } from 'react-icons/fi';
 import { supabase } from '@/app/lib/supabaseClient';
 import { addContact } from './api.chat';
 import { TbMessageCirclePlus } from 'react-icons/tb';

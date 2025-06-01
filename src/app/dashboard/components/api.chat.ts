@@ -1,6 +1,6 @@
 // api/chat.ts
 import { supabase } from '@/app/lib/supabaseClient';
-import { Contact, Message } from '@/app/lib/utils'; // Assuming Contact and Message types are here
+import { Contact, Message } from '@/app/lib/utils'; 
 
 async function fetchCurrentUserPhone(): Promise<string | null> {
   try {
@@ -41,7 +41,6 @@ async function fetchCurrentUserPhone(): Promise<string | null> {
   }
 }
 
-// Function to get the current user's phone
 const getCurrentUserPhone = async (): Promise<string> => {
   const phone = await fetchCurrentUserPhone();
   if (!phone) {
@@ -51,11 +50,10 @@ const getCurrentUserPhone = async (): Promise<string> => {
   return phone;
 };
 
-// --- NEW FUNCTION: Add Contact ---
 export const addContact = async (
   contactName: string,
   contactNumber: string,
-  userId: string // Supabase auth.users ID
+  userId: string 
 ): Promise<{ success: boolean; error: any }> => {
   try {
     const currentUserPhone = await getCurrentUserPhone(); // The phone number of the user who is adding the contact
@@ -92,33 +90,6 @@ export const fetchContacts = async (): Promise<Contact[]> => {
   }
   return data as Contact[];
 };
-
-// Function to subscribe to real-time updates for contacts
-// export const subscribeToContacts = (
-//   setContacts: React.Dispatch<React.SetStateAction<Contact[]>>
-// ) => {
-//   return supabase
-//     .channel('realtime-contacts')
-//     .on(
-//       'postgres_changes',
-//       { event: '*', schema: 'public', table: 'contacts' },
-//       (payload) => {
-//         const currentUserPhone = localStorage.getItem('currentUserPhone'); 
-//         if (!currentUserPhone) return;
-
-//         const record = payload.new || payload.old;
-//         if (record?.phone === currentUserPhone) {
-//           // If the change affects a contact owned by the current user, refetch the list
-//           fetchContacts().then(updatedContacts => {
-//             setContacts(updatedContacts);
-//           }).catch(error => {
-//             console.error("Error refetching contacts after real-time event:", error);
-//           });
-//         }
-//       }
-//     )
-//     .subscribe();
-// };
 
 export const unsubscribeFromContacts = (channel: any) => {
   if (channel && channel.unsubscribe) {

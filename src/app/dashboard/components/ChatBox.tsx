@@ -1,7 +1,7 @@
 'use client';
 
-import React, {  useCallback, useEffect, useRef, useState } from 'react';
-import { fetchMessages, removeChatSubscription, sendMessage, subscribeToNewMessages } from './api.chat'; // Adjust path as needed
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { fetchMessages, sendMessage } from './api.chat';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { FiPaperclip, FiSmile, FiClock } from 'react-icons/fi';
 import { IoSend } from 'react-icons/io5';
@@ -10,6 +10,7 @@ import { GiStarsStack } from 'react-icons/gi';
 import { FaMicrophone } from 'react-icons/fa';
 import { PiClockClockwiseFill } from 'react-icons/pi';
 import { Contact, Message } from '@/app/lib/utils';
+import Image from 'next/image';
 
 interface ChatBoxProps {
   selectedContact: Contact | null;
@@ -20,12 +21,11 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const chatSubscription = useRef<any>(null);
   const [currentUserPhone, setCurrentUserPhone] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const messagesAreaRef = useRef<HTMLDivElement>(null);
-  const [contactProfilePicSrc, setContactProfilePicSrc] = useState<string | null>(null);
+  const [contactProfilePicSrc] = useState<string | null>(null);
 
   const supabase = createClientComponentClient();
 
@@ -60,8 +60,6 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     }
   }, [supabase]);
 
- 
-
   const loadMessages = useCallback(async (contact: Contact | null) => {
     if (!contact) {
       setMessages([]);
@@ -72,7 +70,7 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     if (messagesAreaRef.current) {
       messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
     }
-  }, [fetchMessages]);
+  }, [fetchMessages]); // Removed selectedContact from dependencies
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -82,12 +80,9 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     getCurrentUser();
   }, [fetchCurrentUserPhone]);
 
-  
-
-  // Re-fetch messages when refreshKey changes
+  // Re-fetch messages when refreshKey or selectedContact changes
   useEffect(() => {
     if (selectedContact) {
-      console.log('Refreshing chat due to key change:', refreshKey);
       loadMessages(selectedContact);
     }
   }, [refreshKey, selectedContact, loadMessages]);
@@ -97,28 +92,24 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
   }, [messages]);
 
   const handleSendMessage = useCallback(async () => {
-    if (selectedContact && newMessage.trim()) {
-      if (currentUserPhone) {
-        const tempMessage: Message = {
-          id: Date.now().toString(),
-          sender: currentUserPhone,
-          recipient: selectedContact.contactNumber,
-          content: newMessage.trim(),
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prevMessages) => [...prevMessages, tempMessage]);
-      }
+    if (selectedContact && newMessage.trim() && currentUserPhone) {
+      const tempMessage: Message = {
+        id: Date.now().toString(),
+        sender: currentUserPhone,
+        recipient: selectedContact.contactNumber,
+        content: newMessage.trim(),
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prevMessages) => [...prevMessages, tempMessage]);
       setNewMessage('');
       try {
         await sendMessage(selectedContact, newMessage.trim());
       } catch (error) {
         console.error("Error sending message:", error);
-        if (currentUserPhone) {
-          setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== Date.now().toString()));
-        }
+        setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== tempMessage.id));
       }
     }
-  }, [selectedContact, newMessage, currentUserPhone, sendMessage]);
+  }, [selectedContact, newMessage, currentUserPhone, sendMessage]); // Removed sendMessage from dependencies
 
   const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(event.target.value);
@@ -131,17 +122,17 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     transition: 'background-color 0.2s ease-in-out',
   };
 
-const autoRefreshMessages = useCallback(() => {
-  if (selectedContact) {
-loadMessages(selectedContact);
-}
-}, [selectedContact, loadMessages]);
+  const autoRefreshMessages = useCallback(() => {
+    if (selectedContact) {
+      loadMessages(selectedContact);
+    }
+  }, [selectedContact, loadMessages]);
 
-useEffect(() => {
-  const intervalId = setInterval(autoRefreshMessages, Math.random() * (3000 - 2000) + 2000); // Refresh every 2 to 3 seconds
+  useEffect(() => {
+    const intervalId = setInterval(autoRefreshMessages, Math.random() * (3000 - 2000) + 2000); // Refresh every 2 to 3 seconds
 
-  return () => clearInterval(intervalId); // Cleanup on unmount
-}, [autoRefreshMessages]);
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [autoRefreshMessages]);
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '720px' }}>
@@ -150,7 +141,7 @@ useEffect(() => {
       <div style={{ padding: '10px 20px', height: '58px', backgroundColor: '#f0f0f0', color: '#000', fontWeight: 'bold', display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', borderTop: '1px solid #ddd' }}>
         {contactProfilePicSrc ? (
           <div style={{ width: '30px', height: '30px', borderRadius: '50%', overflow: 'hidden', marginRight: '10px' }}>
-            <img src={contactProfilePicSrc} alt="Contact Profile" width={30} height={30} style={{ objectFit: 'cover' }} />
+            <Image src={contactProfilePicSrc} alt="Contact Profile" width={30} height={30} style={{ objectFit: 'cover' }} />
           </div>
         ) : (
           <div style={{ width: '30px', height: '30px', borderRadius: '50%', overflow: 'hidden', marginRight: '10px', backgroundColor: '#ccc', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -297,10 +288,14 @@ useEffect(() => {
                 }}
                 onClick={() => console.log('Periscope clicked')}
               >
-                <img
-                  src="/publicData/icon.png"
-                  style={{ maxWidth: '20px', height: 'auto' }}
-                  alt="Logo"
+
+                                               
+                <Image
+                    src="/publicData/icon.png"
+                    width={20} 
+                    height={10}
+                    alt="Logo"
+                    style={{ maxWidth: '20px', height: 'auto' }}
                 />
                 Periscope
                 <RiExpandUpDownLine size={20} color="#000" />

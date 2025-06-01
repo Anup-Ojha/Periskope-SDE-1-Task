@@ -1,7 +1,6 @@
-// lib/supabase-server.ts
 import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from './supabaseClient';
+import { Database } from './supabase'; // Import the Database type from supabase.ts
 import { redirect } from 'next/navigation';
 
 export function createServerSupabaseClient() {
@@ -15,7 +14,7 @@ export async function handleLoginRedirect(redirectTo: string) {
 
   if (error) {
     console.error('Error getting user after login:', error);
-    return redirect('/login?error=failed_to_get_user');
+    return redirect(`/login?error=failed_to_get_user`);
   }
 
   if (user) {
@@ -28,7 +27,7 @@ export async function handleLoginRedirect(redirectTo: string) {
 
     if (profileError) {
       console.error('Error fetching user profile:', profileError);
-      return redirect('/dashboard?error=failed_to_get_profile');
+      return redirect(`/dashboard?error=failed_to_get_profile`);
     }
 
     const userPhone = profileData?.phone;

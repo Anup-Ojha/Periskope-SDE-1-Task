@@ -96,6 +96,7 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
                                 alt="Profile"
                                 width={50}
                                 height={50}
+                                priority
                                 className="object-cover w-full h-full"
                             />
                         </div>

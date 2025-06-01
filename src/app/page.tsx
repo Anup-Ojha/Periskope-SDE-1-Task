@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { COLORS } from '@/app/lib/utils';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'; // Import the Image component
 
 export default function HomePage() {
   const supabase = createClientComponentClient();
@@ -78,10 +79,12 @@ export default function HomePage() {
 
       {/* Navigation Bar */}
       <nav className="nav-bar" style={{ width: '100%', maxWidth: '1200px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px', flexWrap: 'wrap' }}>
-        <img
+        <Image
           src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
           alt="Periskope Logo"
-          style={{ height: '60px' }}
+          height={60} // Added height
+          width={200} // Added a reasonable width
+          style={{ objectFit: 'contain' }}
         />
         <div className="nav-buttons">
           <Link href="/login">
@@ -122,10 +125,12 @@ export default function HomePage() {
         <p className="main-paragraph" style={{ color: COLORS.white, fontSize: '18px', marginBottom: '40px' }}>
           Connect with your friends and family seamlessly through our chat application.
         </p>
-        <img
+        <Image
           src="https://cdn.vectorstock.com/i/500p/49/58/chat-app-speech-logotype-type-bubble-vector-18534958.jpg"
           alt="Chat Illustration"
           className="hero-image"
+          width={450} // Added max width as width
+          height={300} // Added a reasonable height
           style={{
             width: '80%',
             maxWidth: '450px',
@@ -134,6 +139,7 @@ export default function HomePage() {
             display: 'block',
             marginLeft: 'auto',
             marginRight: 'auto',
+            objectFit: 'contain',
           }}
         />
       </div>

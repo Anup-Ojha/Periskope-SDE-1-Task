@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { COLORS, Profile } from '@/app/lib/utils';
 import defaultProfileImage from '@/../public/default-image.jpeg';
 import { redirect, useRouter } from 'next/navigation';
 import { IoArrowBack, IoLogOutOutline } from 'react-icons/io5';
+import Image from 'next/image'; // Import Next.js Image
 
 export default function ProfilePage() {
   const supabase = createClientComponentClient();
@@ -73,7 +74,8 @@ export default function ProfilePage() {
 
     setLoading(true);
 
-    const updates: any = {
+    // Corrected type: Use Record<string, any> or a more specific type if possible
+    const updates: Record<string, any> = {
       name,
       phone,
       description,
@@ -125,12 +127,12 @@ export default function ProfilePage() {
     setLoading(true);
     const { error } = await supabase.auth.signOut();
     if (error) {
-     setMessage('Logout failed.');
-     } else {
-     router.push('/logout');
+      setMessage('Logout failed.');
+    } else {
+      router.push('/logout');
     }
-     setLoading(false);
-   };
+    setLoading(false);
+  };
 
   const handleGoBack = () => {
     router.back(); // Attempts to go to the previous page in history
@@ -155,13 +157,14 @@ export default function ProfilePage() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>
           <h2 style={{ color: COLORS.primaryGreen, marginBottom: '20px' }}>Your Profile</h2>
-          <img
+          {/* Replaced <img> with Next.js Image */}
+          <Image
             src={previewUrl}
             alt="Profile Picture"
-            onError={(e) => ((e.target as HTMLImageElement).src = defaultProfileImage.src)}
+            width={100} // Set width and height
+            height={100}
+            onError={() => setPreviewUrl(defaultProfileImage.src)} // Simplified error handling
             style={{
-              width: '100px',
-              height: '100px',
               borderRadius: '50%',
               objectFit: 'cover',
               marginBottom: '20px',
@@ -227,27 +230,27 @@ export default function ProfilePage() {
             </button>
           </div>
           <button
-  onClick={handleLogout}
-  style={{
-    position: 'absolute',
-    bottom: '20px',
-    right: '20px',
-    backgroundColor: 'red',
-    color: '#fff',
-    padding: '8px 15px',
-    borderRadius: '8px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  }}
-  disabled={loading}
->
-  <IoLogOutOutline size={20} />
-  Logout
-</button>
+            onClick={handleLogout}
+            style={{
+              position: 'absolute',
+              bottom: '20px',
+              right: '20px',
+              backgroundColor: 'red',
+              color: '#fff',
+              padding: '8px 15px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+            disabled={loading}
+          >
+            <IoLogOutOutline size={20} />
+            Logout
+          </button>
         </div>
       </div>
     </div>

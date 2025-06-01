@@ -3,7 +3,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { supabase } from '@/app/lib/supabaseClient';
 import { COLORS } from '@/app/lib/utils';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function SignupPage() {
   const [Email, setEmail] = useState('');
@@ -12,7 +12,6 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [signupCompleted, setSignupCompleted] = useState(false);
-  const router = useRouter();
 
   const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
@@ -68,8 +67,9 @@ export default function SignupPage() {
       borderRadius: '20px'
     }}>
       <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-        <img
+        <Image
           src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
+          alt="None"
           style={{ minWidth: '240px', maxWidth: '350px', height: 'auto', objectFit: 'contain', alignItems: 'center' }}
         />
         <h1 style={{ color: COLORS.white, fontSize: '20px', paddingTop: '25px', textAlign: 'center' }}>

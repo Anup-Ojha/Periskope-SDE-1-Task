@@ -4,7 +4,6 @@ import React from 'react';
 import { FiHelpCircle, FiList } from 'react-icons/fi';
 import { AiFillMessage } from 'react-icons/ai';
 import { LuRefreshCcwDot } from 'react-icons/lu';
-import { HiChevronUpDown } from 'react-icons/hi2';
 import { GoDesktopDownload } from 'react-icons/go';
 import { IoMdNotificationsOff } from 'react-icons/io';
 import { BsStars } from 'react-icons/bs';
