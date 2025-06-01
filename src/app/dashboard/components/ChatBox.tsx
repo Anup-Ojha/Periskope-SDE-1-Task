@@ -135,7 +135,7 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
   }, [autoRefreshMessages]);
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '720px' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '92vh', maxHeight: '720px' }}>
 
       {/* Contact Info Header */}
       <div style={{ padding: '10px 20px', height: '58px', backgroundColor: '#f0f0f0', color: '#000', fontWeight: 'bold', display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', borderTop: '1px solid #ddd' }}>

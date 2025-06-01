@@ -1,6 +1,6 @@
 // api/chat.ts
 import { supabase } from '@/app/lib/supabaseClient';
-import { Contact, Message } from '@/app/lib/utils'; 
+import { Contact, Message } from '@/app/lib/utils';
 
 async function fetchCurrentUserPhone(): Promise<string | null> {
   try {
@@ -53,7 +53,7 @@ const getCurrentUserPhone = async (): Promise<string> => {
 export const addContact = async (
   contactName: string,
   contactNumber: string,
-  userId: string 
+  userId: string
 ): Promise<{ success: boolean; error: any }> => {
   try {
     const currentUserPhone = await getCurrentUserPhone(); // The phone number of the user who is adding the contact
@@ -79,16 +79,59 @@ export const addContact = async (
 
 
 export const fetchContacts = async (): Promise<Contact[]> => {
-  const currentUserPhone = await getCurrentUserPhone();
-  const { data, error } = await supabase
-    .from('contacts')
-    .select('*')
-    .eq('phone', currentUserPhone); // Fetch contacts owned by the current user
-  if (error) {
-    console.error('Error fetching contacts:', error);
+  try {
+    const currentUserPhone = await getCurrentUserPhone();
+
+    // Fetch saved contacts
+    const { data: savedContacts, error: contactsError } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('phone', currentUserPhone);
+
+    if (contactsError) {
+      console.error('Error fetching saved contacts:', contactsError);
+      return [];
+    }
+
+    // Fetch senders of messages to the current user who are not in saved contacts
+    const savedContactNumbers = savedContacts?.map(c => c.contactNumber) || [];
+
+let messagesQuery = supabase
+  .from('messages')
+  .select('sender')
+  .neq('sender', currentUserPhone)
+  .eq('recipient', currentUserPhone);
+
+if (savedContactNumbers.length > 0) {
+  messagesQuery = messagesQuery.not('sender', 'in', savedContactNumbers);
+}// Apply distinct AFTER building the full query
+
+const { data: newMessagedUsers} = await messagesQuery;
+
+    // Create Contact objects for new messaged users
+    const newContactsFromMessages = (newMessagedUsers || []).map(user => ({
+      id: `new-${user.sender}`,
+      userId: 'unknown', // Or some default
+      phone: user.sender,
+      contactName: '',
+      contactNumber: user.sender,
+    }));
+
+    // Combine and remove duplicates (if any) based on contactNumber
+     const allContactsMap = new Map<string, Contact>();
+    (savedContacts || []).forEach(contact => allContactsMap.set(contact.contactNumber, contact));
+    newContactsFromMessages.forEach(contact => {
+      if (!allContactsMap.has(contact.contactNumber)) {
+        allContactsMap.set(contact.contactNumber, contact);
+      }
+    });
+
+    return Array.from(allContactsMap.values());
+
+  } catch (error) {
+    console.error('Error fetching all contacts:', error);
     return [];
   }
-  return data as Contact[];
 };
 
 export const unsubscribeFromContacts = (channel: any) => {

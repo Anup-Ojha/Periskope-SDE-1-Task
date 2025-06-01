@@ -68,21 +68,24 @@ export default function SignupPage() {
     }}>
       <div style={{ textAlign: 'center', marginBottom: '50px' }}>
         <Image
-          src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
-          alt="None"
-          style={{ minWidth: '240px', maxWidth: '350px', height: 'auto', objectFit: 'contain', alignItems: 'center' }}
-        />
-        <h1 style={{ color: COLORS.white, fontSize: '20px', paddingTop: '25px', textAlign: 'center' }}>
+                            src="https://framerusercontent.com/images/ywGyuWgLKzqyB4QJ1sw5Nk1mckU.svg?scale-down-to=512"
+                            width={350} // Specify width
+                            height={240} // Specify height (adjust as needed)
+                            style={{ maxWidth: '100%', height: 'auto', objectFit: 'contain' }}
+                            alt="Logo"
+                        />
+        <h1 style={{ color: COLORS.white, fontSize: '20px', paddingTop: '15px', textAlign: 'center' }}>
           Welcome to Periskope
         </h1>
       </div>
 
       <div style={{
         backgroundColor: COLORS.white,
-        padding: '50px',
+        padding: '40px',
         borderRadius: '10px',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
         width: '100%',
+        maxHeight:'500px',
         maxWidth: '480px',
         border: `1px solid ${COLORS.primaryGreen}`
       }}>

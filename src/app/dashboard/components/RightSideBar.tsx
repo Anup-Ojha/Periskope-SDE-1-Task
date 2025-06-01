@@ -34,7 +34,7 @@ const RightSidebarItem: React.FC<RightSidebarItemProps> = ({ icon: Icon, onClick
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = COLORS.hoverBg)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
-            <Icon size={24} style={{ color: COLORS.iconDefault }} />
+            <Icon size={21} style={{ color: COLORS.iconDefault }} />
         </div>
     );
 };
@@ -66,8 +66,6 @@ export default function RightSidebar() {
                 <RightSidebarItem
                     key={index}
                     icon={item.icon}
-                    // text={item.text} // Removed as 'text' is not used in RightSidebarItem
-                    // onClick={() => alert(`Clicked ${item.text}`)}
                 />
             ))}
         </div>

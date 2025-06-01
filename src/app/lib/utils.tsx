@@ -26,7 +26,7 @@ export interface Contact {
   contactNumber: string;
   profile_pic_data?: string;
   profile_pic_type?:string;
-  id: number;
+  id: number|string;
   userId: string;
 }
 

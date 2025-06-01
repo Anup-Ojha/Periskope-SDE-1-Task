@@ -27,11 +27,10 @@ const COLORS = {
 // Reusable SidebarItem component
 interface SidebarItemProps {
     icon: React.ElementType;
-    // text: string; // Removed unused 'text' prop
     href: string;
     isActive: boolean;
     onClick: () => void;
-    iconStyle?: React.CSSProperties; // Optional style for the icon
+    iconStyle?: React.CSSProperties; 
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, href, isActive, onClick, iconStyle }) => {
@@ -48,7 +47,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, href, isActive, o
                     color: isActive ? COLORS.iconActive : COLORS.iconDefault,
                 }}
             >
-                <Icon size={24} style={{ color: isActive ? COLORS.iconActive : COLORS.iconDefault, ...iconStyle }} />
+                <Icon size={19} style={{ color: isActive ? COLORS.iconActive : COLORS.iconDefault, ...iconStyle }} />
             </div>
         </Link>
     );
@@ -115,20 +114,17 @@ export default function Sidebar() {
                 ))}
             </nav>
             <br /><br />
-            {/* Optional: User/Profile Link at the Bottom */}
-            <div className="p-2 border-t w-full flex flex-col items-center" style={{ borderColor: COLORS.sidebarBorder }}>
+            <div className="p-1 border-t w-full flex flex-col items-center" style={{ borderColor: COLORS.sidebarBorder }}>
                 <SidebarItem
-                    icon={TbStarsFilled} // Using stars icon for profile
-                    // text="Profile" // Removed unused text
+                    icon={TbStarsFilled} 
                     href="/profile"
                     isActive={activeItem === 'ProfileBottom'}
                     onClick={() => setActiveItem('ProfileBottom')}
                 />
             </div>
             <SidebarItem
-                icon={TbLayoutSidebarLeftExpandFilled} // Using expand icon
-                // text="Expand" // Removed unused text
-                href="/expand"
+                icon={TbLayoutSidebarLeftExpandFilled} 
+                href="/logout"
                 isActive={activeItem === 'ExpandSidebar'}
                 onClick={() => setActiveItem('ExpandSidebar')}
             />

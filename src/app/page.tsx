@@ -126,14 +126,14 @@ export default function HomePage() {
           Connect with your friends and family seamlessly through our chat application.
         </p>
         <Image
-          src="https://cdn.vectorstock.com/i/500p/49/58/chat-app-speech-logotype-type-bubble-vector-18534958.jpg"
+          src="/pafe.jpg"
           alt="Chat Illustration"
           className="hero-image"
           width={450} // Added max width as width
           height={300} // Added a reasonable height
           style={{
             width: '80%',
-            maxWidth: '450px',
+            maxWidth: '400px',
             height: 'auto',
             borderRadius: '10%',
             display: 'block',

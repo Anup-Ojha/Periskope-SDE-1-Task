@@ -29,7 +29,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div style={{ display: 'flex', height: '100vh', backgroundColor: '#ece5dd' }}>
+        <div style={{ display: 'flex', height: '92vh', backgroundColor: '#ece5dd' }}>
             {userId && (
                 <ContactList
                     onSelect={handleSelectContact} // Use the new handler
