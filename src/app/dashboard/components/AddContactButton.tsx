@@ -26,9 +26,26 @@ const AddContactButton: React.FC<AddContactButtonProps> = ({ onContactAdded }) =
     setFormError(null);
   };
 
+  const isValidMobileNumber = (number: string): boolean => {
+    const cleanedNumber = number.replace(/\s/g, '');
+    return /^[0-9]{10}$/.test(cleanedNumber);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    const cleanedMobileNumber = mobileNumber.replace(/\s/g, '');
+
+    if (!isValidMobileNumber(cleanedMobileNumber)) {
+      setFormError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
+    if (cleanedMobileNumber.length > 10) {
+      setFormError('Mobile number cannot be more than 10 digits.');
+      return;
+    }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -37,7 +54,7 @@ const AddContactButton: React.FC<AddContactButtonProps> = ({ onContactAdded }) =
       return;
     }
 
-    const result = await addContact(name, mobileNumber, user.id);
+    const result = await addContact(name, cleanedMobileNumber, user.id);
 
     if (result.success) {
       console.log('Contact added successfully');
@@ -48,16 +65,18 @@ const AddContactButton: React.FC<AddContactButtonProps> = ({ onContactAdded }) =
     }
   };
 
+  const handleMobileNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMobileNumber(e.target.value);
+  };
+
   return (
     <>
-      {/* Floating Add Button (you can place this inside the contacts container with relative position) */}
+      {/* Floating Add Button */}
       <div
         style={{
-          position: 'absolute', 
-           // Make it float over the content
-          top: '90%',               // Adjust based on desired vertical location
-          left: '26%',     
-             // Place it to the side of contact list
+          position: 'absolute',
+          top: '90%',
+          left: '26%',
           backgroundColor: 'green',
           color: 'white',
           width: '60px',
@@ -122,8 +141,8 @@ const AddContactButton: React.FC<AddContactButtonProps> = ({ onContactAdded }) =
                 <input
                   type="tel"
                   value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="Enter mobile number"
+                  onChange={handleMobileNumberChange}
+                  placeholder="Enter 10-digit mobile number"
                   style={{
                     marginTop: '4px',
                     padding: '10px',
