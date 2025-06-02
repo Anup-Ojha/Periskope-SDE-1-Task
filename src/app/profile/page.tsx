@@ -25,9 +25,10 @@ export default function ProfilePage() {
             } = await supabase.auth.getUser();
 
             if (userError || !user) {
-                redirect('/login');
-                return;
-            }
+    router.push('/login');
+    return;
+}
+
             const userId = user.id;
             const { data, error } = await supabase
                 .from('user-profile')

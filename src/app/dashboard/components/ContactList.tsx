@@ -50,7 +50,6 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
 
   return (
     <div className="w-[32%] min-w-[350px] bg-white overflow-y-auto border-r border-t border-gray-300">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap p-3 bg-gray-50 font-semibold border-b border-gray-200">
         <div className="flex items-center mb-2 md:mb-0">
           <HiFolderDownload size={25} className="text-green-600 mr-2" />
@@ -78,7 +77,6 @@ export default function ContactList({ selectedContact, onSelect, userId }: Conta
         </div>
       </div>
 
-      {/* Contact List */}
       {filteredContacts.map((contact) => {
         const isSelected = selectedContact?.id === contact.id;
         return (

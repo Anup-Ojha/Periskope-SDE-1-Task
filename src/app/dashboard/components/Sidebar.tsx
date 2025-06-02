@@ -15,7 +15,6 @@ import { HiMegaphone, HiMiniListBullet } from 'react-icons/hi2';
 import { IoIosGitNetwork } from 'react-icons/io';
 import Image from 'next/image'; // Import Image
 
-// Define a consistent color palette
 const COLORS = {
     sidebarBg: '#F8F8F8',
     sidebarBorder: '#E0E0E0',
@@ -24,7 +23,6 @@ const COLORS = {
     hoverBg: '#EFEFF4',
 };
 
-// Reusable SidebarItem component
 interface SidebarItemProps {
     icon: React.ElementType;
     href: string;

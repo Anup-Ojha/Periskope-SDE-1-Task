@@ -8,40 +8,48 @@ import AddContactButton from './AddContactButton';
 import { Contact } from '@/app/lib/utils';
 
 export default function ChatPage() {
-    const [selectedContact, setSelectedContact] = useState<Contact | null>(null); // Ensure it's Contact | null
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
 
-    useEffect(() => {
-        const getUserId = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUserId(user?.id || null);
-        };
-        getUserId();
-    }, []);
+  useEffect(() => {
+    async function fetchUserId() {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching user:', error);
+        setUserId(null);
+        return;
+      }
+      setUserId(user?.id ?? null);
+    }
+    fetchUserId();
+  }, []);
 
-    const handleContactAdded = useCallback(() => {
-        setRefreshKey(prevKey => prevKey + 1);
-    }, []);
+  const handleContactAdded = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
-    const handleSelectContact = (contact: Contact) => {
-        setSelectedContact(contact);
-    };
+  const handleSelectContact = useCallback((contact: Contact) => {
+    setSelectedContact(contact);
+  }, []);
 
-    return (
-        <div style={{ display: 'flex', height: '92vh', backgroundColor: '#ece5dd' }}>
-            {userId && (
-                <ContactList
-                    onSelect={handleSelectContact} // Use the new handler
-                    selectedContact={selectedContact}
-                    userId={userId}
-                    key={refreshKey}
-                />
-            )}
-            <AddContactButton onContactAdded={handleContactAdded} />
-            <div style={{ flex: 1 }}>
-                <ChatBox selectedContact={selectedContact} refreshKey={refreshKey} />
-            </div>
-        </div>
-    );
+  return (
+    <div style={{ display: 'flex', height: '92vh', backgroundColor: '#ece5dd' }}>
+      {userId && (
+        <ContactList
+          userId={userId}
+          selectedContact={selectedContact}
+          onSelect={handleSelectContact}
+          key={refreshKey}
+        />
+      )}
+      <AddContactButton onContactAdded={handleContactAdded} />
+      <div style={{ flex: 1 }}>
+        <ChatBox selectedContact={selectedContact} refreshKey={refreshKey} />
+      </div>
+    </div>
+  );
 }

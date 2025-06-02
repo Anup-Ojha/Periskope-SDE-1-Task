@@ -11,7 +11,7 @@ import { VscCircleFilled } from 'react-icons/vsc';
 
 const ButtonBar = () => {
   return (
-    <div className="bg-white shadow-md rounded-md p-3 flex items-center">
+    <div className="bg-white shadow-md  p-3 flex items-center">
       {/* Chats section on the left */}
       <div className="flex items-center space-x-2 px-2">
         <AiFillMessage className="text-gray-600" size={20} />

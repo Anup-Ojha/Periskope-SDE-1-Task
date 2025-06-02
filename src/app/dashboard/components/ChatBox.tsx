@@ -25,9 +25,8 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     const emojiPickerRef = useRef<HTMLDivElement>(null);
     const messagesAreaRef = useRef<HTMLDivElement>(null);
     const [contactProfilePicSrc] = useState<string | null>(null);
-
     const supabase = createClientComponentClient();
-
+    
     const fetchCurrentUserPhone = useCallback(async (): Promise<string | null> => {
         try {
             const {
@@ -79,7 +78,6 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
         getCurrentUser();
     }, [fetchCurrentUserPhone]);
 
-    // Re-fetch messages when refreshKey or selectedContact changes
     useEffect(() => {
         if (selectedContact) {
             loadMessages(selectedContact);
@@ -128,15 +126,13 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     }, [selectedContact, loadMessages]);
 
     useEffect(() => {
-        const intervalId = setInterval(autoRefreshMessages, Math.random() * (3000 - 2000) + 2000); // Refresh every 2 to 3 seconds
-
-        return () => clearInterval(intervalId); // Cleanup on unmount
+        const intervalId = setInterval(autoRefreshMessages, Math.random() * (3000 - 2000) + 2000);
+        return () => clearInterval(intervalId);
     }, [autoRefreshMessages]);
 
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '92vh', maxHeight: '720px' }}>
 
-            {/* Contact Info Header */}
             <div style={{ padding: '10px 20px', height: '58px', backgroundColor: '#f0f0f0', color: '#000', fontWeight: 'bold', display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', borderTop: '1px solid #ddd' }}>
                 {contactProfilePicSrc ? (
                     <div style={{ width: '30px', height: '30px', borderRadius: '50%', overflow: 'hidden', marginRight: '10px' }}>
@@ -155,17 +151,17 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
             <div
                 ref={messagesAreaRef}
                 style={{
-                    height: 'calc(100% - 58px - 56px)', // Adjusted to account for ButtonBar implicitly if present
+                    height: 'calc(100% - 58px - 56px)', 
                     padding: '20px',
                     backgroundColor: '#ece5dd',
                     overflowY: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center', // Center content vertically when no contact is selected
-                    alignItems: 'center', // Center content horizontally when no contact is selected
+                    justifyContent: 'center', 
+                    alignItems: 'center',
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#aab0bb transparent',
-                    textAlign: 'center', // Center text
+                    textAlign: 'center', 
                 }}
             >
                 <style jsx global>{`
@@ -219,12 +215,10 @@ export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
                 <div ref={bottomRef} />
             </div>
 
-            {/* Input Area (at the bottom) */}
             {selectedContact && (
                 <div style={{ padding: '10px 20px', borderTop: '1px solid #ddd', backgroundColor: 'white', display: 'flex', flexDirection: 'column', position: 'relative' }}>
                     {showEmojiPicker && (
                         <div ref={emojiPickerRef} style={{ position: 'absolute', bottom: '60px', left: '20px', zIndex: 10 }}>
-                            {/* Emoji Picker component here */}
                         </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>

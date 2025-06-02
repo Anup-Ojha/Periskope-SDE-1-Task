@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from './supabase'; // Import the Database type from supabase.ts
+import { Database } from './supabase'; 
 import { redirect } from 'next/navigation';
 
 export function createServerSupabaseClient() {
@@ -18,7 +18,6 @@ export async function handleLoginRedirect(redirectTo: string) {
   }
 
   if (user) {
-    // Fetch user profile to get phone number
     const { data: profileData, error: profileError } = await supabase
       .from('user-profile')
       .select('phone')
@@ -31,8 +30,6 @@ export async function handleLoginRedirect(redirectTo: string) {
     }
 
     const userPhone = profileData?.phone;
-
-    // Redirect with user info as URL parameters (client-side will handle this)
     return redirect(`${redirectTo}?userId=${user.id}&userPhone=${userPhone}`);
   }
 
