@@ -43,7 +43,7 @@ export default function LoginPage() {
                 setPassword('');
             } else {
                 setMessage('Login successful! Redirecting...');
-                router.push('/profile'); 
+                router.push('/dashboard'); 
             }
         } catch (err) {
             setError((err as Error).message || 'An error occurred during login.');
