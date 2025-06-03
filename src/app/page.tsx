@@ -13,19 +13,18 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleLogout = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Error during logout:', error);
-      } 
+    const checkUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        router.push('/chat'); // Redirect authenticated users
+      }
     };
 
-    handleLogout();
-
-    return () => {
-      // Cleanup if needed
-    };
-  }, [supabase, router]);
+    checkUser();
+  }, []);
 
   return (
     <motion.div
@@ -56,8 +55,6 @@ export default function HomePage() {
           flex-wrap: wrap;
           gap: 20px;
         }
-
-        .nav-logo {}
 
         .nav-buttons {
           display: flex;
@@ -93,13 +90,13 @@ export default function HomePage() {
           max-width: 1200px;
           display: flex;
           gap: 40px;
-          align-items: center; /* Vertically align chart and text */
-          flex-direction: row; /* Default to side-by-side */
+          align-items: center;
+          flex-direction: row;
         }
 
         .hero-section {
-          flex: 1; /* Take up available space */
-          text-align: left; /* Align text to the left when side-by-side */
+          flex: 1;
+          text-align: left;
         }
 
         .main-heading {
@@ -119,7 +116,7 @@ export default function HomePage() {
           max-width: 400px;
           height: auto;
           border-radius: 10px;
-          margin-bottom: 0; /* Remove bottom margin when side-by-side */
+          margin-left: 9%;
           object-fit: contain;
         }
 
@@ -130,7 +127,7 @@ export default function HomePage() {
           width: 100%;
           max-width: 400px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          flex-shrink: 0; /* Don't shrink below its content */
+          flex-shrink: 0;
         }
 
         @media (max-width: 768px) {
@@ -150,24 +147,24 @@ export default function HomePage() {
           }
           .main-heading {
             font-size: 36px !important;
-            text-align: center; /* Center text on mobile */
+            text-align: center;
           }
           .main-paragraph {
             font-size: 16px !important;
-            text-align: center; /* Center text on mobile */
+            text-align: center;
           }
           .main-area {
-            flex-direction: column; /* Stack on mobile */
-            align-items: center; /* Center items on mobile */
+            flex-direction: column;
+            align-items: center;
             gap: 30px;
           }
           .hero-section {
-            text-align: center; /* Center text on mobile */
+            text-align: center;
           }
           .hero-image {
             width: 100% !important;
-            max-width: 300px; /* Adjust image size on mobile */
-            margin-bottom: 30px; /* Add bottom margin on mobile */
+            max-width: 300px;
+            margin-bottom: 30px;
           }
           .chart-container {
             max-width: 100%;
@@ -207,16 +204,8 @@ export default function HomePage() {
             src="/pafe.jpg"
             alt="Chat Illustration"
             className="hero-image"
-            
             width={450}
             height={300}
-            style={{
-              maxWidth: '400px',
-              height: 'auto',
-              marginLeft: '9%',
-              borderRadius: '10px',
-              objectFit: 'contain',
-            }}
           />
         </section>
         <div className="chart-container">
