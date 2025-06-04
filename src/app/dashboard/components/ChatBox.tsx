@@ -13,9 +13,10 @@ import { Contact, Message } from '@/app/lib/utils';
 
 interface ChatBoxProps {
     selectedContact: Contact | null;
+    refreshKey: number;
 }
 
-export default function ChatBox({ selectedContact }: ChatBoxProps) {
+export default function ChatBox({ selectedContact, refreshKey }: ChatBoxProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -81,7 +82,7 @@ export default function ChatBox({ selectedContact }: ChatBoxProps) {
         if (selectedContact) {
             loadMessages(selectedContact);
         }
-    }, [ selectedContact, loadMessages]);
+    }, [refreshKey, selectedContact, loadMessages]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

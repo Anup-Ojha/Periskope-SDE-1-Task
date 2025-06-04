@@ -43,11 +43,12 @@ export default function ChatPage() {
           userId={userId}
           selectedContact={selectedContact}
           onSelect={handleSelectContact}
+          key={refreshKey}
         />
       )}
       <AddContactButton onContactAdded={handleContactAdded} />
       <div style={{ flex: 1 }}>
-        <ChatBox selectedContact={selectedContact} />
+        <ChatBox selectedContact={selectedContact} refreshKey={refreshKey} />
       </div>
     </div>
   );
